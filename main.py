@@ -1,6 +1,4 @@
 from random import randint
-from math import floor
-from copy import deepcopy
 import matplotlib.pyplot as plt
 
 def grid_init(n=10, m=10):
@@ -63,108 +61,91 @@ def create_new_candy(grid):
         grid[i][j] = randint(1, 4)
   return grid
 
+def detect_coordinate_combination_lv2(grid,row,col):
+  """
+  check row combination
+  """
+  row_candies = [[row,col]]
+  col_dec = col-1
+  col_inc = col+1
+  int_candy = grid[row][col]
+  
+  while (col_inc <= (len(grid)-1) ) and (grid[row][col_inc] == int_candy):
+    row_candies.append([col-col_inc])
+    col_inc += 1
 
-def detect_candy_combinaison(grid):
-  new_grid = deepcopy(grid)
-  combi_list = []
-  for i in range(len(new_grid) - 1):
-    for j in range(len(new_grid[i]) - 1):
-      swap_candies(new_grid, (i, j), (i, j + 1))
-      if len(detect_coordinate_combinaison2(i, j, new_grid)) == 0 or len(
-          detect_coordinate_combinaison2(i, j + 1, new_grid)) == 0:
-        combi_list.append(True)
-      else:
-        combi_list.append(False)
-      swap_candies(new_grid, (i, j + 1), (i, j))
+  while (col_dec >= 0) and (grid[row][col_dec] == int_candy):
+    row_candies.append([row,col_dec])
+    col_dec -= 1
 
-      swap_candies(new_grid, (i, j), (i + 1, j))
-      if len(detect_coordinate_combinaison2(i, j, new_grid)) == 0 or len(
-          detect_coordinate_combinaison2(i + 1, j, new_grid)):
-        combi_list.append(True)
-      else:
-        combi_list.append(False)
-      swap_candies(new_grid, (i, j + 1), (i + 1, j))
+  """
+  check column combination
+  """
+  col_candies = [[row,col]]
+  row_dec = row-1
+  row_inc = row+1
+  while (row_dec >= 0) and grid[row_dec][col] == int_candy:
+    col_candies.append([row_dec,col])
+    row_dec -= 1
 
-  end = True
-  for combi in combi_list:
-    if combi == False:
-      end = False
-  return end
+  while (row_inc <= (len(grid)-1) ) and grid[row_inc][col] == int_candy:
+    col_candies.append([row_inc,col])
+    row_inc += 1
 
+  """
+  check the length of the combination and return the highest combination direction
+  """
+  print(row_candies)
+  print(col_candies)
+  
+  delete_candies = []
 
-def detect_coordinate_combinaison2(i, j, grid):
-  color = grid[i][j]
-  combi_list = []
-  j2 = j
-  i2 = i
-  changej = 0
-  changei = 0
+  if len(row_candies) >= 3 and len(row_candies) >= len(col_candies):
+    delete_candies = row_candies
+  elif len(col_candies) >= 3 and len(col_candies) >= len(row_candies):
+    delete_candies = col_candies
 
-  while j2 < (len(grid[i]) - 1) and color == grid[i][j2 + 1]:
-    j2 += 1
-    changej += 1
-
-  j2 = j
-  while j2 > 0 and color == grid[i][j2 - 1]:
-    j2 -= 1
-    changej += 1
-
-  j2 = j
-  while i2 < (len(grid) - 1) and color == grid[i2 + 1][j2]:
-    i2 += 1
-    changei += 1
-
-  i2 = i
-  while i2 > 0 and color == grid[i2 - 1][j2]:
-    i2 -= 1
-    changei += 1
-
-  if changei >= 2 or changej >= 2:
-    combi_list = floodcandy(i, j, grid)
-  else:
-    combi_list = []
-
-  return combi_list
+  return delete_candies
 
 
-def floodcandy(x, y, grid):
+def change_grid_state(grid,move):
+  """
+  input player move
+  """
+  grid = swap_candies(grid,move[0],move[1])
 
-  combi_list = [] #THERE IS SOME ISSUE HERE IDK WHAT THE HELL
-  color = grid[x][y]
+  final_score = 0
 
-  queued = [[x, y]]
+  """
+  check candy combination of the move
+  """
+  delete_candies = []
+  
+  first_combination = detect_coordinate_combination_lv2(grid,move[0][0],move[0][1])
+  second_combination = detect_coordinate_combination_lv2(grid,move[1][0],move[1][1])
+  
+  for ele in first_combination:
+    delete_candies.append(ele)
+  for ele in second_combination:
+    if ele in delete_candies:
+      pass
+    else:
+      delete_candies.append(ele)
+  print(delete_candies)
+    
+  """
+  remove the candy combination by making them into 0(s)
+  """
+  for element in delete_candies:
+    grid[element[0]][element[1]] = 0
+  
+  final_score += score(delete_candies)
 
-  while len(queued) > 0:
-    x = queued[0][0]
-    y = queued[0][1]
+  delete_candies = []
+  move_candy(grid)
+  create_new_candy(grid)
 
-    combi_list.append([x, y])
-    queued.remove(queued[0])
-
-    cellcheck = \
-      [[x, y + 1],
-      [x - 1, y], [x + 1, y],
-      [x, y - 1]
-      ]
-    for elem in cellcheck:
-      if (0 <= elem[0]) and (elem[0] < len(grid)) and (0 <= elem[1]) and (
-          elem[1] < len(grid[x])):
-        if grid[elem[0]][elem[
-            1]] == color and elem not in queued and elem not in combi_list:
-          queued.append(elem)
-
-  return combi_list
-
-
-"""
-  combi_list = [tuple(t) for t in combi_list]
-
-  combiset = set(combi_list)
-
-  combi_list = [list(t) for t in combiset]  
-
-  return list(set(combi_list))
-"""
+  return grid
 
 
 def check_all_value(grid):
@@ -174,17 +155,6 @@ def check_all_value(grid):
       if [i, j] not in big_list:
         big_list += detect_coordinate_combinaison2(i, j, grid)
   return big_list
-
-
-"""
-  combi_list = [tuple(t) for t in big_list]
-
-  combiset = set(combi_list)
-
-  combi_list = [list(t) for t in combiset]  
-  
-  return list(set(combi_list))
-"""
 
 
 def player_input():
@@ -197,17 +167,13 @@ def player_input():
 
 def player_move(grid):
   move = player_input()
-  if (move[0][0] >= len(grid)) or (move[0][1] >= len(grid)) or (
-      move[1][0] >= len(grid)) or (move[1][1] >= len(grid)):
+  if (move[0][0] >= len(grid)) or (move[0][1] >= len(grid)) or (move[1][0] >= len(grid)) or (move[1][1] >= len(grid)):
     print('Your move is out of table, please do it again')
     move = player_input()
-  elif (move[0][0] < 0) or (move[0][1] < 0) or (move[1][0] < 0) or (move[1][1]
-                                                                    < 0):
+  elif (move[0][0] < 0) or (move[0][1] < 0) or (move[1][0] < 0) or (move[1][1] < 0):
     print('Your move is so small that we can not do it, please do it again')
     move = player_input()
-  elif (abs(move[0][0] - move[1][0]) >= 1) and (abs(move[0][1] - move[1][1]) >=
-                                                1) or ((abs(move[0][0] - move[1][0]) == 1) and (abs(move[0][1] - move[1][1]) ==
-                                                1)):
+  elif (abs(move[0][0] - move[1][0]) >= 1) and (abs(move[0][1] - move[1][1]) >= 1) or ((abs(move[0][0] - move[1][0]) == 1) and (abs(move[0][1] - move[1][1]) == 1)):
     print('You made an invalid move, please do it again')
     move = player_input()
   return move
@@ -244,39 +210,111 @@ def score(combi):
   score = 2.7**(len(combi) / 3)
   return score
 
+def pattern_1(grid,i,j):
+  if grid[i][j] == grid[i][j+1] == grid[i+1][j+2]:
+    return True
+  return False
+
+def pattern_2(grid,i,j):
+  if grid[i][j] == grid[i][j+1] == grid[i-1][j+2]:
+    return True
+  return False
+
+def pattern_3(grid,i,j):
+  if grid[i][j] == grid[i-1][j+1] == grid[i][j+2]:
+    return True
+  return False
+
+def pattern_4(grid,i,j):
+  if grid[i][j] == grid[i+1][j+1] == grid[i][j+2]:
+    return True
+  return False
+
+def pattern_5(grid,i,j):
+  if grid[i-1][j] == grid[i][j+1] == grid[i][j+2]:
+    return True
+  return False
+
+def pattern_6(grid,i,j):
+  if grid[i+1][j] == grid[i][j+1] == grid[i][j+2]:
+    return True
+  return False
+
+def pattern_7(grid,i,j):
+  if grid[i][j-1] == grid[i+1][j] == grid[i+2][j]:
+    return True
+  return False
+
+def pattern_8(grid,i,j):
+  if grid[i][j+1] == grid[i+1][j] == grid[i+2][j]:
+    return True
+  return False
+
+def pattern_9(grid,i,j):
+  if grid[i][j] == grid[i+1][j-1] == grid[i+2][j]:
+    return True
+  return False
+
+def pattern_10(grid,i,j):
+  if grid[i][j] == grid[i+1][j+1] == grid[i+1][j]:
+      return True
+  return False
+
+def pattern_11(grid,i,j):
+  if grid[i][j] == grid[i+1][j] == grid[i+2][j-1]:
+      return True
+  return False
+
+def pattern_12(grid,i,j):
+  if grid[i][j] == grid[i+1][j] == grid[i+2][j+1]:
+      return True
+  return False
+
+def pattern_13(grid,i,j):
+  if grid[i][j] == grid[i+1][j] == grid[i+3][j]:
+      return True
+  return False
+
+def pattern_14(grid,i,j):
+  if grid[i][j] == grid[i+2][j] == grid[i+3][j+1]:
+      return True
+  return False
+
+def pattern_15(grid,i,j):
+  if grid[i][j] == grid[i][j+1] == grid[i][j+3]:
+      return True
+  return False
+
+def pattern_16(grid,i,j):
+  if grid[i][j] == grid[i][j+2] == grid[i][j+3]:
+      return True
+  return False
+
+def check_all_possible_move(grid):
+  for row in range(len(grid)):
+    for column in range(len(grid[row])):
+      if (pattern_1(grid,row,column) == True) or (pattern_2(grid,row,column) == True) or (pattern_3(grid,row,column) == True) or (pattern_4(grid,row,column) == True) or (pattern_5(grid,row,column) == True) or (pattern_6(grid,row,column) == True) or (pattern_7(grid,row,column) == True) or (pattern_8(grid,row,column) == True) or (pattern_9(grid,row,column) == True) or (pattern_10(grid,row,column) == True) or (pattern_11(grid,row,column) == True) or (pattern_12(grid,row,column) == True) or (pattern_13(grid,row,column) == True) or (pattern_14(grid,row,column) == True) or (pattern_15(grid,row,column) == True) or (pattern_16(grid,row,column) == True):
+        return True
+      else:
+        return False
+          
 
 ########### main ###########
-test_grid = grid_init(5, 5)
-# grid_display(test_grid, 5)
-grid_convert_display(test_grid)
-print()
+current_grid = grid_init(5, 5)
 
-while not detect_candy_combinaison(test_grid):
-  move_candy(test_grid)
-  
-  test_grid = create_new_candy(test_grid)
+end = False
 
-  all_combi = check_all_value(test_grid)
-  while len(all_combi) > 0:
-    for coord in all_combi:
-      test_grid[coord[0]][coord[1]] = 0
-    score(all_combi)
-    move_candy(test_grid)
-    test_grid = create_new_candy(test_grid)
-    all_combi = check_all_value(test_grid)
+while end == False:
+  grid_convert_display(current_grid)
 
-  # grid_display(test_grid, 5)
-  grid_convert_display(test_grid)
-  print()
+  list_move = player_move(current_grid)
+  temp_grid = current_grid
 
-  move = player_move(test_grid)
-  swap_candies(test_grid, move[0], move[1])
-  combi = detect_coordinate_combinaison2(move[0][0], move[0][1], test_grid)
-  for coord in combi:
-    test_grid[coord[0]][coord[1]] = 0
+  current_grid = change_grid_state(current_grid,list_move)
+  if check_all_possible_move(current_grid) == False:
+    current_grid = temp_grid
+    end = True
+  else:
+    end = False
 
-else:
-  print("end of the game")
-
-test_grid2 = grid_init(5, 5)
-print(check_all_value(test_grid2))
+print('End game') 
