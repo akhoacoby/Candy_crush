@@ -71,7 +71,7 @@ def detect_coordinate_combination_lv2(grid,row,col):
   int_candy = grid[row][col]
   
   while (col_inc <= (len(grid)-1) ) and (grid[row][col_inc] == int_candy):
-    row_candies.append([col-col_inc])
+    row_candies.append([row,col_inc])
     col_inc += 1
 
   while (col_dec >= 0) and (grid[row][col_dec] == int_candy):
@@ -108,13 +108,11 @@ def detect_coordinate_combination_lv2(grid,row,col):
   return delete_candies
 
 
-def change_grid_state(grid,move):
+def change_grid_state(grid,move,final_score):
   """
   input player move
   """
   grid = swap_candies(grid,move[0],move[1])
-
-  final_score = 0
 
   """
   check candy combination of the move
@@ -136,14 +134,18 @@ def change_grid_state(grid,move):
   """
   remove the candy combination by making them into 0(s)
   """
-  for element in delete_candies:
-    grid[element[0]][element[1]] = 0
-  
-  final_score += score(delete_candies)
-
-  delete_candies = []
-  move_candy(grid)
-  create_new_candy(grid)
+  if delete_candies == []:
+    grid = swap_candies(grid,move[0],move[1])
+  else:
+    for element in delete_candies:
+      grid[element[0]][element[1]] = 0
+    
+    final_score += score(delete_candies)
+    print(f'Score: {final_score:.2f}')
+    
+    delete_candies = []
+    move_candy(grid)
+    create_new_candy(grid)
 
   return grid
 
@@ -303,16 +305,22 @@ def check_all_possible_move(grid):
 current_grid = grid_init(5, 5)
 
 end = False
+total_score = 0
 
 while end == False:
   grid_convert_display(current_grid)
-
-  list_move = player_move(current_grid)
+  
   temp_grid = current_grid
+  list_move = player_move(current_grid)
+  
 
-  current_grid = change_grid_state(current_grid,list_move)
-  if check_all_possible_move(current_grid) == False:
-    current_grid = temp_grid
+  current_grid = change_grid_state(current_grid,list_move,total_score)
+  
+  if current_grid == temp_grid:
+    print('Your move is useless!')
+    end = False
+    
+  elif check_all_possible_move(current_grid) == False:
     end = True
   else:
     end = False
