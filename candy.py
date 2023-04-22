@@ -2,18 +2,13 @@ from random import randint
 import matplotlib.pyplot as plt
 
 
-def grid_init(n=10, m=10):
+def grid_init(n, m,nb =int):
     grid = []
     for i in range(n):
         grid.append([])
         for j in range(m):
-            grid[i].append(randint(1, 4))
+            grid[i].append(randint(1, nb))
     return grid
-
-
-def grid_display(grid):
-    for row in grid:
-        print(row)
 
 
 def grid_display2(grid):
@@ -47,20 +42,20 @@ def grid_display(grid, nb_type_candies):
     Displays the game grid "grid" containing at least
     maximum "nb_type_candies" different colors of candies.
     """
-    plt.imshow(grid, vmin=0, vmax=nb_type_candies-1, cmap='jet')
+    plt.imshow(grid, vmin=0, vmax=nb_type_candies, cmap='jet')
     plt.pause(0.1)
     plt.draw()
     plt.pause(0.1)
 
 
-def create_new_candy(grid):
+def create_new_candy(grid,nb = int):
     '''
-    from the grid, find the zeroes and replace them with color numbers
+    from the grid, find the zeroes and replace them with n color numbers
     '''
     for i in range(len(grid)):
         for j in range(len(grid[i])):
             if grid[i][j] == 0:
-                grid[i][j] = randint(1, 4)
+                grid[i][j] = randint(1, nb)
     return grid
 
 
@@ -118,7 +113,7 @@ def candy_delete_combo(grid):
                 combo.append([row,col])
     return combo
 
-def change_grid_state(grid, move):
+def change_grid_state(grid, move,nb=int):
 
     ## Initialize the return grid ####
     return_grid = []
@@ -156,7 +151,7 @@ def change_grid_state(grid, move):
 
         delete_candies = []
         move_candy(return_grid)
-        create_new_candy(return_grid)
+        create_new_candy(return_grid,nb)
 
         ###candy combo after create new candy
         combo = candy_delete_combo(return_grid)
@@ -172,7 +167,7 @@ def change_grid_state(grid, move):
 
             delete_candies = []
             move_candy(return_grid)
-            create_new_candy(return_grid)
+            create_new_candy(return_grid,nb)
 
             combo = candy_delete_combo(return_grid)
 
@@ -183,8 +178,7 @@ def change_grid_state(grid, move):
 def player_input():
     xmove_1, ymove_1 = input('Enter the coordinates of 1st candy:').split()
     xmove_2, ymove_2 = input('Enter the coordinates of 2nd candy:').split()
-    xmove_1, ymove_1, xmove_2, ymove_2 = int(
-        xmove_1), int(ymove_1), int(xmove_2), int(ymove_2)
+    xmove_1, ymove_1, xmove_2, ymove_2 = int(xmove_1), int(ymove_1), int(xmove_2), int(ymove_2)
     move = [[xmove_1, ymove_1], [xmove_2, ymove_2]]
     return move
 
@@ -279,18 +273,20 @@ def check_all_possible_move(grid) -> bool:
     return possible
 
 ########### main ###########
-current_grid = grid_init(5, 5)
+type_candies = 4
+current_grid = grid_init(5, 5, type_candies)
 
 end = False
 total_score = 0
 
 while end == False:
-    grid_convert_display(current_grid)
+    #grid_convert_display(current_grid)
+    grid_display(current_grid, type_candies)
 
     temp_grid = current_grid ### address assignment ###
     list_move = player_move(current_grid)
 
-    current_grid, point = change_grid_state(current_grid, list_move)
+    current_grid, point = change_grid_state(current_grid, list_move, type_candies)
     total_score += point
     print(f'Total score: {total_score:.2f}')
 
