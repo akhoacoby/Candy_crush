@@ -10,33 +10,6 @@ def grid_init(n, m,nb =int):
             grid[i].append(randint(1, nb))
     return grid
 
-
-def grid_display2(grid):
-    for i in range(len(grid)):
-        text = ""
-        for j in range(len(grid[i])):
-            text += " " + str(grid[i][j])
-        print(text)
-
-
-def grid_convert_display(grid):
-    newgrid = []
-    for i in range(len(grid)):
-        newgrid.append([])
-        for j in range(len(grid[1])):
-            if grid[i][j] == 1 or grid[i][j] == "1":
-                newgrid[i].append('\u001b[31m' + "●" + '\033[0m')
-            elif grid[i][j] == 2 or grid[i][j] == "2":
-                newgrid[i].append('\u001b[32m' + "●" + '\033[0m')
-            elif grid[i][j] == 3 or grid[i][j] == "3":
-                newgrid[i].append('\u001b[34m' + "●" + '\033[0m')
-            elif grid[i][j] == 4 or grid[i][j] == "4":
-                newgrid[i].append('\u001b[35m' + "●" + '\033[0m')
-            else:
-                newgrid[i].append(grid[i][j])
-    grid_display2(newgrid)
-
-
 def grid_display(grid, nb_type_candies):
     """
     Displays the game grid "grid" containing at least
@@ -141,13 +114,16 @@ def change_grid_state(grid, move,nb=int):
 
     if delete_candies == []:
         swap_candies(return_grid, move[0], move[1])
-        point = 0
+        return_point = 0
     else:
         for element in delete_candies:
             return_grid[element[0]][element[1]] = 0
 
+    ### add score ###
+        return_point = 0
         point = score(delete_candies)
         print(f'Score: {point:.2f}')
+        return_point += point
 
         delete_candies = []
         move_candy(return_grid)
@@ -163,7 +139,8 @@ def change_grid_state(grid, move,nb=int):
                 return_grid[element[0]][element[1]] = 0
 
             point = score(delete_candies)
-            print(f'Score: {point:.2f}')
+            print(f'Combo score: {point:.2f}')
+            return_point += point
 
             delete_candies = []
             move_candy(return_grid)
@@ -172,7 +149,7 @@ def change_grid_state(grid, move,nb=int):
             combo = candy_delete_combo(return_grid)
 
 
-    return return_grid, point
+    return return_grid, return_point
 
 
 def player_input():
@@ -280,7 +257,6 @@ end = False
 total_score = 0
 
 while end == False:
-    #grid_convert_display(current_grid)
     grid_display(current_grid, type_candies)
 
     temp_grid = current_grid ### address assignment ###
