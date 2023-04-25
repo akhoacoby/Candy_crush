@@ -36,6 +36,11 @@ def grid_console_display(grid):
         newgrid[i].append('\u001b[35m' + "●" + '\033[0m')
       else:
         newgrid[i].append(grid[i][j])
+  for i in range(len(newgrid)):
+    row = ""
+    for j in range(len(newgrid[i])):
+      row += " " + str(newgrid[i][j])
+    print(row)
 
 def create_new_candy(grid, nb=int):
     '''
@@ -310,6 +315,9 @@ total_score = 0
 
 while end == False:
     grid_display(current_grid, type_candies)
+    if type_candies == 4:
+        grid_console_display(current_grid)
+        print()
 
     temp_grid = current_grid  ### address assignment ###
     list_move = player_move(current_grid)
