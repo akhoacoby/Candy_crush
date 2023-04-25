@@ -21,6 +21,21 @@ def grid_display(grid, nb_type_candies):
     plt.draw()
     plt.pause(0.1)
 
+def grid_console_display(grid):
+  newgrid = []
+  for i in range(len(grid)):
+    newgrid.append([])
+    for j in range(len(grid[1])):
+      if grid[i][j] == 1 or grid[i][j] == "1":
+        newgrid[i].append('\u001b[31m' + "●" + '\033[0m')
+      elif grid[i][j] == 2 or grid[i][j] == "2":
+        newgrid[i].append('\u001b[32m' + "●" + '\033[0m')
+      elif grid[i][j] == 3 or grid[i][j] == "3":
+        newgrid[i].append('\u001b[34m' + "●" + '\033[0m')
+      elif grid[i][j] == 4 or grid[i][j] == "4":
+        newgrid[i].append('\u001b[35m' + "●" + '\033[0m')
+      else:
+        newgrid[i].append(grid[i][j])
 
 def create_new_candy(grid, nb=int):
     '''
@@ -169,8 +184,26 @@ def change_grid_state(grid, move, nb=int):
 
 
 def player_input():
-    xmove_1, ymove_1 = input('Enter the coordinates of 1st candy:').split()
-    xmove_2, ymove_2 = input('Enter the coordinates of 2nd candy:').split()
+    xy1 = input('Enter the coordinates of 1st candy (x y):')
+    xy2 = input('Enter the coordinates of 2nd candy (x y):')
+    while len(xy1) - 1 != len(xy1.replace(" ", "")) or len(xy2) - 1 != len(xy2.replace(" ", "")) or (xy1[0] == " " or xy1[-1] == " " or xy2[0] == " " or xy2[-1] == " "):
+        print("wrong input (too much spaces/ no spaces)")
+        xy1 = input('Enter the coordinates of 1st candy (x y):')
+        xy2 = input('Enter the coordinates of 2nd candy (x y):')
+    xmove_1, ymove_1 = xy1.split()
+    xmove_2, ymove_2 = xy2.split()
+
+    while not (xmove_1.isdigit() or xmove_2.isdigit() or ymove_1.isdigit() or ymove_2.isdigit()):
+        print("wrong input (input are not integers)")
+        xy1 = input('Enter the coordinates of 1st candy (x y):')
+        xy2 = input('Enter the coordinates of 2nd candy (x y):')
+        while len(xy1) - 1 != len(xy1.replace(" ", "")) or len(xy2) - 1 != len(xy2.replace(" ", "")) and (xy1[0] == " " or xy1[-1] == " " or xy2[0] == " " or xy2[-1] == " "):
+            print("wrong input (too much spaces/ no spaces)")
+            xy1 = input('Enter the coordinates of 1st candy (x y):')
+            xy2 = input('Enter the coordinates of 2nd candy (x y):')
+        xmove_1, ymove_1 = xy1.split()
+        xmove_2, ymove_2 = xy2.split()
+
     xmove_1, ymove_1, xmove_2, ymove_2 = int(xmove_1), int(ymove_1), int(xmove_2), int(ymove_2)
     move = [[xmove_1, ymove_1], [xmove_2, ymove_2]]
     return move
@@ -269,8 +302,8 @@ def check_all_possible_move(grid) -> bool:
 
 
 ########### main ###########
-type_candies = 50
-current_grid = grid_init(100, 100, type_candies)
+type_candies = 4
+current_grid = grid_init(10, 10, type_candies)
 
 end = False
 total_score = 0
