@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 
 def grid_init(n, m, nb=int):
+    """initialise the game grid"""
     grid = []
     for i in range(n):
         grid.append([])
@@ -28,7 +29,7 @@ def grid_display(grid, nb_type_candies):
 
 def grid_console_display(grid):
     """
-    Display the numbers as the dots symbols
+    Display the numbers as dot symbols
     """
 
     newgrid = []
@@ -367,9 +368,53 @@ def check_all_possible_move(grid) -> bool:
     return possible
 
 
-########### main ###########
+def test_detect_coordinates_combination_lv3():
+    """Test the function detect_coordinates_combination_lv3(grid, row, col).
+    For each test case, displays True if the test passes, False otherwise"""
+
+
+    # Test 1: simple case
+    grid = [[1, 2, 3, 4, 1], [3, 2, 4, 2, 3], [1, 3, 3, 3, 3], [4, 1, 4, 3, 1], [1, 3, 2, 4, 2]]
+    row = 2
+    col = 3
+    print(detect_coordinate_combination_lv3(grid, row, col) == [[2, 3], [2, 4], [3, 3], [2, 2], [1, 4], [2, 1]])
+
+    # Test 2: no candy combination
+    grid = [[1, 2, 3, 4, 1], [3, 2, 4, 2, 3], [1, 3, 3, 3, 3], [4, 1, 4, 3, 1], [1, 3, 2, 4, 2]]
+    row = 0
+    col = 0
+    print(detect_coordinate_combination_lv3(grid, row, col) == [])
+
+    # Test 3: less than 3 candies aligned
+    grid = [[1, 2, 3, 4, 1], [3, 2, 4, 2, 3], [1, 3, 3, 3, 3], [4, 1, 4, 3, 1], [1, 3, 2, 4, 2]]
+    row = 0
+    col = 1
+    print(detect_coordinate_combination_lv3(grid, row, col) == [])
+
+    # Test 4: precisely 3 candies aligned
+    grid = [[1, 2, 3, 4, 1], [3, 2, 4, 2, 2], [1, 3, 3, 3, 1], [4, 1, 4, 2, 1], [1, 3, 2, 4, 2]]
+    row = 2
+    col = 3
+    print(detect_coordinate_combination_lv3(grid, row, col) == [[2, 3], [2, 2], [2, 1]])
+
+    # Test 5: 3 candies aligned and one on the side
+    grid = [[1, 2, 3, 4, 1], [3, 2, 4, 2, 2], [1, 3, 3, 3, 1], [4, 1, 4, 3, 1], [1, 3, 2, 4, 2]]
+    row = 2
+    col = 3
+    print(detect_coordinate_combination_lv3(grid, row, col) == [[2, 3], [3, 3], [2, 2], [2, 1]])
+
+    # Test 6: 3 candies aligned and one diagonally next to them
+    grid = [[1, 2, 3, 4, 1], [3, 2, 4, 2, 2], [1, 3, 3, 3, 1], [3, 1, 4, 2, 1], [1, 3, 2, 4, 2]]
+    row = 2
+    col = 3
+    print(detect_coordinate_combination_lv3(grid, row, col) == [[2, 3], [2, 2], [2, 1]])
+
+
+test_detect_coordinates_combination_lv3()
+
+      ########### main ###########
 type_candies = 4
-current_grid = strict_grid(6, 6, type_candies)
+current_grid = strict_grid(10, 10, type_candies)
 
 end = False
 total_score = 0

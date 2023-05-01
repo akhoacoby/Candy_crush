@@ -251,7 +251,7 @@ def check_all_possible_move(grid) -> bool:
 
 ########### main ###########
 type_candies = 4
-current_grid = grid_init(5, 5, type_candies)
+current_grid = grid_init(10, 10, type_candies)
 
 end = False
 total_score = 0
